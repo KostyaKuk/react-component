@@ -1,11 +1,7 @@
 import { Component } from 'react';
 import styles from './inputElem.module.css';
 
-interface kostiaName {
-  name: string;
-}
-
-class InputElem extends Component<kostiaName> {
+class InputElem extends Component {
   render() {
     return (
       <header className={styles['search-header']}>
