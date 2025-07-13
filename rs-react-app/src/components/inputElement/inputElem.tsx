@@ -1,18 +1,25 @@
 import { Component } from 'react';
 import styles from './inputElem.module.css';
+import type { InputElemProps } from '../../types/types';
 
-class InputElem extends Component {
+class InputElem extends Component<InputElemProps> {
   render() {
+    const { searchQuery, onSearchChange, onSearchSubmit } = this.props;
+
     return (
       <header className={styles['search-header']}>
-        <div className={styles['search-wrapper']}>
+        <form onSubmit={onSearchSubmit} className={styles['search-wrapper']}>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search pokemon..."
+            value={searchQuery}
+            onChange={onSearchChange}
             className={styles['search-input']}
           />
-          <button className={styles['search-button']}>Search</button>
-        </div>
+          <button type="submit" className={styles['search-button']}>
+            Search
+          </button>
+        </form>
       </header>
     );
   }
