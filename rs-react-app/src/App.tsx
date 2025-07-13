@@ -1,11 +1,11 @@
 import { Component } from 'react';
-import CharacterCard from './components/card/card';
+import ResultArea from './components/resultsArea/ResultArea';
 
 class App extends Component {
   render() {
     return (
       <div>
-        <CharacterCard />
+        <ResultArea />
       </div>
     );
   }

@@ -27,3 +27,9 @@ export interface InputElemProps {
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSearchSubmit: (e: FormEvent) => void;
 }
+
+export interface ResultAreaProps {
+  pokemons: Pokemon[];
+  loading: boolean;
+  error: string | null;
+}
