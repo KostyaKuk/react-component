@@ -1,4 +1,5 @@
 import { Component, type ChangeEvent, type FormEvent } from 'react';
+import { ClipLoader } from 'react-spinners';
 import styles from './card.module.css';
 import InputElem from '../inputElement/inputElem';
 import type {
@@ -20,6 +21,7 @@ class CharacterCard extends Component<object, CharacterCardState> {
   }
 
   fetchInitialPokemons = () => {
+    this.setState({ loading: true });
     fetch('https://pokeapi.co/api/v2/pokemon?limit=30')
       .then((response) => {
         if (!response.ok) throw new Error('Failed to load pokemons');
@@ -46,7 +48,19 @@ class CharacterCard extends Component<object, CharacterCardState> {
   handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
     const { searchQuery } = this.state;
-    if (!searchQuery.trim()) return;
+
+    if (!searchQuery.trim()) {
+      this.setState(
+        {
+          error: null,
+          loading: true,
+        },
+        () => {
+          this.fetchInitialPokemons();
+        }
+      );
+      return;
+    }
 
     this.setState({ loading: true, error: null });
     fetch(
@@ -75,14 +89,6 @@ class CharacterCard extends Component<object, CharacterCardState> {
   render() {
     const { pokemons, loading, error, searchQuery } = this.state;
 
-    if (loading) {
-      return <div className={styles.loading}>Loading...</div>;
-    }
-
-    if (error) {
-      return <div className={styles.error}>Error: {error}</div>;
-    }
-
     return (
       <div>
         <InputElem
@@ -91,25 +97,35 @@ class CharacterCard extends Component<object, CharacterCardState> {
           onSearchSubmit={this.handleSearchSubmit}
         />
 
-        <div className={styles['card-container']}>
-          {pokemons.length === 0 ? (
-            <div className={styles['no-results']}>No pokemons</div>
-          ) : (
-            pokemons.map((pokemon) => (
-              <div key={pokemon.id} className={styles['character-card']}>
-                <img
-                  src={pokemon.sprites.front_default}
-                  alt={pokemon.name}
-                  className={styles['character-image']}
-                />
-                <div className={styles['character-info']}>
-                  <h3 className={styles['character-name']}>{pokemon.name}</h3>
-                  <p className={styles['character-detail']}>ID: {pokemon.id}</p>
+        {loading ? (
+          <div className={styles.spinnerContainer}>
+            <ClipLoader color="#eba953" size={15} />
+          </div>
+        ) : error ? (
+          <div className={styles.error}>Error: {error}</div>
+        ) : (
+          <div className={styles['card-container']}>
+            {pokemons.length === 0 ? (
+              <div className={styles['no-results']}>No pokemons found</div>
+            ) : (
+              pokemons.map((pokemon) => (
+                <div key={pokemon.id} className={styles['character-card']}>
+                  <img
+                    src={pokemon.sprites.front_default}
+                    alt={pokemon.name}
+                    className={styles['character-image']}
+                  />
+                  <div className={styles['character-info']}>
+                    <h3 className={styles['character-name']}>{pokemon.name}</h3>
+                    <p className={styles['character-detail']}>
+                      ID: {pokemon.id}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     );
   }
