@@ -2,6 +2,7 @@ import { Component, type ChangeEvent, type FormEvent } from 'react';
 import InputElem from '../inputElement/inputElem';
 import type { CharacterCardState, PokemonResponse } from '../../types/types';
 import CharacterCard from '../card/card';
+import styles from './resultArea.module.css';
 
 class ResultArea extends Component<object, CharacterCardState> {
   state: CharacterCardState = {
@@ -9,6 +10,7 @@ class ResultArea extends Component<object, CharacterCardState> {
     loading: true,
     error: null,
     searchQuery: '',
+    forceError: false,
   };
 
   componentDidMount() {
@@ -17,7 +19,7 @@ class ResultArea extends Component<object, CharacterCardState> {
 
   fetchInitialPokemons = () => {
     this.setState({ loading: true });
-    fetch('https://pokeapi.co/api/v2/pokemon?limit=30')
+    fetch('https://pokeapi.co/api/v2/pokemon?limit=10')
       .then((response) => {
         if (!response.ok) throw new Error('Failed to load pokemons');
         return response.json();
@@ -32,7 +34,7 @@ class ResultArea extends Component<object, CharacterCardState> {
         this.setState({ pokemons, loading: false });
       })
       .catch((error) => {
-        this.setState({ error: error.message, loading: false });
+        this.setState({ error, loading: false });
       });
   };
 
@@ -49,6 +51,7 @@ class ResultArea extends Component<object, CharacterCardState> {
         {
           error: null,
           loading: true,
+          searchQuery: '',
         },
         () => {
           this.fetchInitialPokemons();
@@ -69,20 +72,29 @@ class ResultArea extends Component<object, CharacterCardState> {
         this.setState({
           pokemons: [pokemon],
           loading: false,
-          searchQuery: searchQuery.trim(),
+          searchQuery: '',
         });
       })
       .catch((error) => {
         this.setState({
-          error: error.message,
+          error,
           loading: false,
           pokemons: [],
+          searchQuery: '',
         });
       });
   };
 
+  throwTestError = () => {
+    this.setState({ forceError: true });
+  };
+
   render() {
-    const { pokemons, loading, error, searchQuery } = this.state;
+    const { pokemons, loading, error, searchQuery, forceError } = this.state;
+
+    if (forceError) {
+      throw new Error('You are click test error btn!');
+    }
 
     return (
       <div>
@@ -92,7 +104,17 @@ class ResultArea extends Component<object, CharacterCardState> {
           onSearchSubmit={this.handleSearchSubmit}
         />
 
-        <CharacterCard pokemons={pokemons} loading={loading} error={error} />
+        <button className={styles.errorButton} onClick={this.throwTestError}>
+          Test Error
+        </button>
+
+        <div className={styles.wrapperCards}>
+          <CharacterCard
+            pokemons={pokemons}
+            loading={loading}
+            error={error?.message || null}
+          />
+        </div>
       </div>
     );
   }

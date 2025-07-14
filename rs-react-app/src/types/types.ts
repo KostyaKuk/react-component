@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from 'react';
+import { type ChangeEvent, type FormEvent } from 'react';
 
 export interface Pokemon {
   id: number;
@@ -18,8 +18,9 @@ export interface PokemonResponse {
 export interface CharacterCardState {
   pokemons: Pokemon[];
   loading: boolean;
-  error: string | null;
+  error: Error | null;
   searchQuery: string;
+  forceError: boolean;
 }
 
 export interface InputElemProps {
