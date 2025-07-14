@@ -4,13 +4,32 @@ import type { CharacterCardState, PokemonResponse } from '../../types/types';
 import CharacterCard from '../card/card';
 import styles from './resultArea.module.css';
 
+const SEARCH_KEY = 'pokemon_search_query';
 class ResultArea extends Component<object, CharacterCardState> {
+  getSavedSearch = (): string => {
+    try {
+      const savedQuery = localStorage.getItem(SEARCH_KEY);
+      return savedQuery || '';
+    } catch (error) {
+      console.error('Error reading localStorage:', error);
+      return '';
+    }
+  };
+
   state: CharacterCardState = {
     pokemons: [],
     loading: true,
     error: null,
-    searchQuery: '',
+    searchQuery: this.getSavedSearch(),
     forceError: false,
+  };
+
+  saveSearch = (query: string) => {
+    try {
+      localStorage.setItem(SEARCH_KEY, query);
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
   };
 
   componentDidMount() {
@@ -39,7 +58,9 @@ class ResultArea extends Component<object, CharacterCardState> {
   };
 
   handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
     this.setState({ searchQuery: e.target.value });
+    this.saveSearch(query);
   };
 
   handleSearchSubmit = (e: FormEvent) => {
