@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import { ClipLoader } from 'react-spinners';
 import styles from './card.module.css';
 import type { ResultAreaProps } from '../../types/types';
 
@@ -10,7 +9,7 @@ class CharacterCard extends Component<ResultAreaProps> {
     if (loading) {
       return (
         <div className={styles.spinnerContainer}>
-          <ClipLoader color="#eba953" size={15} />
+          <div className={styles.customSpinner}></div>
         </div>
       );
     }
