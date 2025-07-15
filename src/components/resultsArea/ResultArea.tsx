@@ -1,16 +1,24 @@
 import { Component, type ChangeEvent, type FormEvent } from 'react';
 import InputElem from '../inputElement/inputElem';
-import type { CharacterCardState, PokemonResponse } from '../../types/types';
 import CharacterCard from '../card/card';
 import styles from './resultArea.module.css';
+import type { Pokemon } from '../../types/types';
+import { fetchPokemonByName, fetchPokemons } from '../../api/apiPokemon';
+
+interface CharacterCardState {
+  pokemons: Pokemon[];
+  loading: boolean;
+  error: Error | null;
+  searchQuery: string;
+  forceError: boolean;
+}
 
 class ResultArea extends Component<object, CharacterCardState> {
   private readonly SEARCH_KEY = 'pokemon_search_query';
 
   getSavedSearch = (): string => {
     try {
-      const savedQuery = localStorage.getItem(this.SEARCH_KEY);
-      return savedQuery || '';
+      return localStorage.getItem(this.SEARCH_KEY) || '';
     } catch (error) {
       console.error('Error reading localStorage:', error);
       return '';
@@ -34,77 +42,54 @@ class ResultArea extends Component<object, CharacterCardState> {
   };
 
   componentDidMount() {
-    this.fetchInitialPokemons();
+    this.loadInitialData();
   }
 
-  fetchInitialPokemons = () => {
+  loadInitialData = async () => {
     this.setState({ loading: true });
-    fetch('https://pokeapi.co/api/v2/pokemon?limit=10')
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to load pokemons');
-        return response.json();
-      })
-      .then((data: PokemonResponse) => {
-        const pokemonPromises = data.results.map((pokemon) =>
-          fetch(pokemon.url).then((res) => res.json())
-        );
-        return Promise.all(pokemonPromises);
-      })
-      .then((pokemons) => {
-        this.setState({ pokemons, loading: false });
-      })
-      .catch((error) => {
-        this.setState({ error, loading: false });
+
+    try {
+      const pokemons = await fetchPokemons(10);
+      this.setState({ pokemons, loading: false });
+    } catch (error) {
+      this.setState({ error: new Error(String(error)), loading: false });
+    }
+  };
+
+  handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      this.setState({ searchQuery: '' }, this.loadInitialData);
+      return;
+    }
+
+    this.setState({ loading: true, error: null });
+
+    try {
+      const pokemon = await fetchPokemonByName(query);
+      this.setState({
+        pokemons: [pokemon],
+        loading: false,
+        searchQuery: '',
       });
+    } catch (error) {
+      this.setState({
+        error: new Error(String(error)),
+        loading: false,
+        pokemons: [],
+        searchQuery: '',
+      });
+    }
   };
 
   handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
-    this.setState({ searchQuery: e.target.value });
+    this.setState({ searchQuery: query });
     this.saveSearch(query);
   };
 
   handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const { searchQuery } = this.state;
-
-    if (!searchQuery.trim()) {
-      this.setState(
-        {
-          error: null,
-          loading: true,
-          searchQuery: '',
-        },
-        () => {
-          this.fetchInitialPokemons();
-        }
-      );
-      return;
-    }
-
-    this.setState({ loading: true, error: null });
-    fetch(
-      `https://pokeapi.co/api/v2/pokemon/${searchQuery.toLowerCase().trim()}`
-    )
-      .then((response) => {
-        if (!response.ok) throw new Error('Pokemon not found');
-        return response.json();
-      })
-      .then((pokemon) => {
-        this.setState({
-          pokemons: [pokemon],
-          loading: false,
-          searchQuery: '',
-        });
-      })
-      .catch((error) => {
-        this.setState({
-          error,
-          loading: false,
-          pokemons: [],
-          searchQuery: '',
-        });
-      });
+    this.handleSearch(this.state.searchQuery);
   };
 
   throwTestError = () => {
@@ -115,7 +100,7 @@ class ResultArea extends Component<object, CharacterCardState> {
     const { pokemons, loading, error, searchQuery, forceError } = this.state;
 
     if (forceError) {
-      throw new Error('You are click test error btn!');
+      throw new Error('You clicked test error button!');
     }
 
     return (

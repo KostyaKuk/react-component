@@ -15,14 +15,6 @@ export interface PokemonResponse {
   }[];
 }
 
-export interface CharacterCardState {
-  pokemons: Pokemon[];
-  loading: boolean;
-  error: Error | null;
-  searchQuery: string;
-  forceError: boolean;
-}
-
 export interface InputElemProps {
   searchQuery: string;
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
