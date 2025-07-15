@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prepare": "cd .. && husky my-react-app/.husky",
+    "prepare": "cd .. && husky install my-react-app/.husky",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
