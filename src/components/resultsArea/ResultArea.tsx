@@ -42,7 +42,14 @@ class ResultArea extends Component<object, CharacterCardState> {
   };
 
   componentDidMount() {
-    this.loadInitialData();
+    const savedQuery = this.getSavedSearch();
+    if (savedQuery) {
+      this.setState({ searchQuery: savedQuery }, () => {
+        this.handleSearch(savedQuery);
+      });
+    } else {
+      this.loadInitialData();
+    }
   }
 
   loadInitialData = async () => {
@@ -69,14 +76,14 @@ class ResultArea extends Component<object, CharacterCardState> {
       this.setState({
         pokemons: [pokemon],
         loading: false,
-        searchQuery: '',
+        searchQuery: query,
       });
     } catch (error) {
       this.setState({
         error: new Error(String(error)),
         loading: false,
         pokemons: [],
-        searchQuery: '',
+        searchQuery: query,
       });
     }
   };
