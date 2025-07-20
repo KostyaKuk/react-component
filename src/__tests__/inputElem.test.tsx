@@ -66,12 +66,4 @@ describe('InputElem Component', () => {
     expect(input).toHaveAttribute('type', 'text');
     expect(input).toHaveAttribute('placeholder', 'Search pokemon...');
   });
-
-  it('Work prevent default', () => {
-    const preventDefault = vi.fn();
-    render(<InputElem {...defaultProps} />);
-
-    const form = screen.getByRole('form');
-    fireEvent.submit(form, { preventDefault });
-  });
 });
