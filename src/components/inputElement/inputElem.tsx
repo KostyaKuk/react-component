@@ -8,7 +8,11 @@ class InputElem extends Component<InputElemProps> {
 
     return (
       <header className={styles['search-header']}>
-        <form onSubmit={onSearchSubmit} className={styles['search-wrapper']}>
+        <form
+          onSubmit={onSearchSubmit}
+          name="form"
+          className={styles['search-wrapper']}
+        >
           <input
             type="text"
             placeholder="Search pokemon..."
