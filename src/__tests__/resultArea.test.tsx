@@ -44,4 +44,28 @@ describe('Component ResultArea moc', () => {
       expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
     });
   });
+
+  it('Show data pokemon after loading', async () => {
+    const mockPokemon = {
+      id: 1,
+      name: 'Bulbasaur',
+      sprites: { front_default: 'bulbasaur.png' },
+    };
+    vi.mocked(fetchPokemons).mockResolvedValue([mockPokemon]);
+
+    render(<ResultArea />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
+
+      const nameElement = screen.getByText('Bulbasaur');
+      expect(nameElement).toBeInTheDocument();
+
+      const idElement = screen.getByText('ID: 1');
+      expect(idElement).toBeInTheDocument();
+
+      const imageElement = screen.getByAltText('Bulbasaur');
+      expect(imageElement).toHaveAttribute('src', 'bulbasaur.png');
+    });
+  });
 });
