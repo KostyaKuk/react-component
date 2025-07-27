@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './card.module.css';
 import type { ResultAreaProps } from '../../types/types';
 
@@ -7,6 +8,12 @@ const CharacterCard: React.FC<ResultAreaProps> = ({
   loading,
   error,
 }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = (name: string) => {
+    navigate(`/pokemon/${name}`);
+  };
+
   if (loading) {
     return (
       <div className={styles.spinnerContainer} data-testid="loading">
@@ -25,7 +32,12 @@ const CharacterCard: React.FC<ResultAreaProps> = ({
         <div className={styles['no-results']}>No pokemons found</div>
       ) : (
         pokemons.map((pokemon) => (
-          <div key={pokemon.id} className={styles['character-card']}>
+          <div
+            key={pokemon.id}
+            className={styles['character-card']}
+            onClick={() => handleCardClick(pokemon.name)}
+            style={{ cursor: 'pointer' }}
+          >
             <img
               src={pokemon.sprites.front_default}
               alt={pokemon.name}

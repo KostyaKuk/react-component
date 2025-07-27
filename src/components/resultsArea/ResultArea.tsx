@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Outlet } from 'react-router-dom';
 import InputElem from '../inputElement/inputElem';
 import CharacterCard from '../card/card';
 import styles from './resultArea.module.css';
@@ -122,40 +122,45 @@ function ResultArea() {
   }
 
   return (
-    <div>
-      <InputElem
-        searchQuery={searchQuery}
-        onSearchChange={handleSearchChange}
-        onSearchSubmit={handleSearchSubmit}
-      />
-
-      <button className={styles.errorButton} onClick={throwTestError}>
-        Test Error
-      </button>
-
-      <div className={styles.wrapperCards}>
-        <CharacterCard
-          pokemons={state.pokemons}
-          loading={state.loading}
-          error={state.error?.message || null}
+    <div className={styles.container}>
+      <div className={styles.searchWrapper}>
+        <InputElem
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onSearchSubmit={handleSearchSubmit}
         />
+        <button className={styles.errorButton} onClick={throwTestError}>
+          Test Error
+        </button>
       </div>
-      {!searchQuery && state.pokemons.length > 0 && (
-        <div className={styles.pagination}>
-          <button
-            disabled={currentPage === 1}
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
-            Previous
-          </button>
-
-          <span>Page {currentPage}</span>
-
-          <button onClick={() => handlePageChange(currentPage + 1)}>
-            Next
-          </button>
+      <div className={styles.columnsWrapper}>
+        <div className={styles.resultsColumn}>
+          <div className={styles.wrapperCards}>
+            <CharacterCard
+              pokemons={state.pokemons}
+              loading={state.loading}
+              error={state.error?.message || null}
+            />
+          </div>
+          {!searchQuery && state.pokemons.length > 0 && (
+            <div className={styles.pagination}>
+              <button
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Previous
+              </button>
+              <span>Page {currentPage}</span>
+              <button onClick={() => handlePageChange(currentPage + 1)}>
+                Next
+              </button>
+            </div>
+          )}
         </div>
-      )}
+        <div className={styles.detailsColumn}>
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 }
