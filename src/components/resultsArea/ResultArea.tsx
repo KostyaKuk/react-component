@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, Outlet } from 'react-router-dom';
+import { useSearchParams, Outlet, useNavigate } from 'react-router-dom';
 import InputElem from '../inputElement/inputElem';
 import CharacterCard from '../card/card';
 import styles from './resultArea.module.css';
@@ -15,6 +15,7 @@ interface ResultAreaState {
 }
 
 function ResultArea() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSaveSearch] = useLocalStorageSearch();
   const [state, setState] = useState<ResultAreaState>({
@@ -121,6 +122,10 @@ function ResultArea() {
     throw new Error('You clicked test error button!');
   }
 
+  const handleAboutUs = () => {
+    navigate('/about');
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.searchWrapper}>
@@ -129,9 +134,14 @@ function ResultArea() {
           onSearchChange={handleSearchChange}
           onSearchSubmit={handleSearchSubmit}
         />
-        <button className={styles.errorButton} onClick={throwTestError}>
-          Test Error
-        </button>
+        <div className={styles.buttonsWrap}>
+          <button className={styles.errorButton} onClick={throwTestError}>
+            Test Error
+          </button>
+          <button className={styles.aboutButton} onClick={handleAboutUs}>
+            About Us
+          </button>
+        </div>
       </div>
       <div className={styles.columnsWrapper}>
         <div className={styles.resultsColumn}>

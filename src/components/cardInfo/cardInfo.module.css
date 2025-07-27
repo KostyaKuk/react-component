@@ -15,8 +15,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error {
@@ -72,7 +76,7 @@
 .pokemonInfo {
   display: flex;
   flex-direction: column;
-  gap: 12px; 
+  gap: 12px;
   font-size: 1rem;
   color: #333;
 }

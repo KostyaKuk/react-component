@@ -86,3 +86,22 @@
   border-left: none;
   display: none;
 }
+
+.aboutButton{
+    padding: 10px 10px;
+    margin: 25px;
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.aboutButton:hover{
+    background-color: #e68a00;
+}
+
+.buttonsWrap{
+  display: flex;
+}
