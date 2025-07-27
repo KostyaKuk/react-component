@@ -87,9 +87,9 @@
   display: none;
 }
 
-.aboutButton{
-    padding: 10px 10px;
-    margin: 25px;
+.aboutButton {
+  padding: 10px 10px;
+  margin: 25px;
   background-color: #ff9800;
   color: white;
   border: none;
@@ -98,10 +98,10 @@
   margin-top: 15px;
 }
 
-.aboutButton:hover{
-    background-color: #e68a00;
+.aboutButton:hover {
+  background-color: #e68a00;
 }
 
-.buttonsWrap{
+.buttonsWrap {
   display: flex;
 }

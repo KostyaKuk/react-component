@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import CharacterCard from '../components/card/card';
+import { BrowserRouter } from 'react-router-dom';
 
 describe('component card', () => {
   const mockPokemon = {
@@ -11,7 +12,9 @@ describe('component card', () => {
 
   it('Render name and img pokemon', () => {
     render(
-      <CharacterCard pokemons={[mockPokemon]} loading={false} error={null} />
+      <BrowserRouter>
+        <CharacterCard pokemons={[mockPokemon]} loading={false} error={null} />
+      </BrowserRouter>
     );
 
     const image = screen.getByRole('img', { name: /venusaur/i });
@@ -23,7 +26,11 @@ describe('component card', () => {
   });
 
   it('Render no pokemons found', () => {
-    render(<CharacterCard pokemons={[]} loading={false} error={null} />);
+    render(
+      <BrowserRouter>
+        <CharacterCard pokemons={[]} loading={false} error={null} />
+      </BrowserRouter>
+    );
 
     const noResults = screen.getByText(/no pokemons found/i);
     expect(noResults).toBeInTheDocument();
