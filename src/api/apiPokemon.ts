@@ -2,8 +2,13 @@ import type { Pokemon, PokemonResponse } from '../types/types';
 
 const BASE_URL = 'https://pokeapi.co/api/v2';
 
-export const fetchPokemons = async (limit = 10): Promise<Pokemon[]> => {
-  const response = await fetch(`${BASE_URL}/pokemon?limit=${limit}`);
+export const fetchPokemons = async (
+  limit = 10,
+  offset = 0
+): Promise<Pokemon[]> => {
+  const response = await fetch(
+    `${BASE_URL}/pokemon?limit=${limit}&offset=${offset}`
+  );
 
   if (!response.ok) {
     throw new Error('Failed to load pokemons');
