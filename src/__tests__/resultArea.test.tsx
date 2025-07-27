@@ -127,4 +127,23 @@ describe('Component ResultArea moc', () => {
       expect(fetchPokemonByName).toHaveBeenCalledWith('ivysaur');
     });
   });
+
+  it('show new after handle page', async () => {
+    render(
+      <MemoryRouter initialEntries={['/?page=1']}>
+        <ResultArea />
+      </MemoryRouter>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('Bulbasaur')).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(fetchPokemons).toHaveBeenCalledWith(10, 10);
+      expect(screen.getByText('Page 2')).toBeInTheDocument();
+    });
+  });
 });

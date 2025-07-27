@@ -35,7 +35,7 @@ const PokemonDetails: React.FC = () => {
   if (loading) {
     return (
       <div className={styles.spinnerContainer}>
-        <div className={styles.customSpinner}></div>
+        <div className={styles.customSpinner} data-testid="spinner"></div>
       </div>
     );
   }
@@ -48,7 +48,11 @@ const PokemonDetails: React.FC = () => {
 
   return (
     <div className={styles.detailsPanel}>
-      <button className={styles.closeButton} onClick={handleClose}>
+      <button
+        className={styles.closeButton}
+        onClick={handleClose}
+        data-testid="close-button"
+      >
         X
       </button>
       <h2 className={styles.pokemonName}>{pokemon.name}</h2>
