@@ -6,6 +6,10 @@ export interface Pokemon {
   sprites: {
     front_default: string;
   };
+  types?: { type: { name: string } }[];
+  abilities?: { ability: { name: string } }[];
+  height?: number;
+  weight?: number;
 }
 
 export interface PokemonResponse {
