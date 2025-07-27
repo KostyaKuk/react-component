@@ -5,24 +5,22 @@ import CharacterCard from '../card/card';
 import styles from './resultArea.module.css';
 import type { Pokemon } from '../../types/types';
 import { fetchPokemonByName, fetchPokemons } from '../../api/apiPokemon';
+import { useLocalStorageSearch } from '../../hooks/useLocalStorage';
 
 interface ResultAreaState {
   pokemons: Pokemon[];
   loading: boolean;
   error: Error | null;
-  searchQuery: string;
   forceError: boolean;
 }
 
-const SEARCH_KEY = 'pokemon_search_query';
-
 function ResultArea() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSaveSearch] = useLocalStorageSearch();
   const [state, setState] = useState<ResultAreaState>({
     pokemons: [],
     loading: true,
     error: null,
-    searchQuery: '',
     forceError: false,
   });
 
@@ -30,23 +28,6 @@ function ResultArea() {
     const pageFromUrl = searchParams.get('page');
     return pageFromUrl ? parseInt(pageFromUrl, 10) : 1;
   });
-
-  const getSavedSearch = useCallback((): string => {
-    try {
-      return localStorage.getItem(SEARCH_KEY) || '';
-    } catch (error) {
-      console.error('Error reading localStorage:', error);
-      return '';
-    }
-  }, []);
-
-  const saveSearch = useCallback((query: string) => {
-    try {
-      localStorage.setItem(SEARCH_KEY, query);
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
-    }
-  }, []);
 
   const loadInitialData = useCallback(
     async (page = 1) => {
@@ -72,7 +53,7 @@ function ResultArea() {
   const handleSearch = useCallback(
     async (query: string) => {
       if (!query.trim()) {
-        setState((prev) => ({ ...prev, searchQuery: '' }));
+        setSaveSearch('');
         await loadInitialData(1);
         return;
       }
@@ -85,7 +66,6 @@ function ResultArea() {
           ...prev,
           pokemons: [pokemon],
           loading: false,
-          searchQuery: query,
         }));
         setSearchParams({});
       } catch (error) {
@@ -94,29 +74,27 @@ function ResultArea() {
           error: new Error(String(error)),
           loading: false,
           pokemons: [],
-          searchQuery: query,
         }));
         setSearchParams({});
       }
     },
-    [loadInitialData, setSearchParams]
+    [loadInitialData, setSaveSearch, setSearchParams]
   );
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const query = e.target.value;
-      setState((prev) => ({ ...prev, searchQuery: query }));
-      saveSearch(query);
+      setSaveSearch(query);
     },
-    [saveSearch]
+    [setSaveSearch]
   );
 
   const handleSearchSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      handleSearch(state.searchQuery);
+      handleSearch(searchQuery);
     },
-    [handleSearch, state.searchQuery]
+    [handleSearch, searchQuery]
   );
 
   const throwTestError = useCallback(() => {
@@ -125,21 +103,19 @@ function ResultArea() {
 
   const handlePageChange = useCallback(
     (newPage: number) => {
-      if (state.searchQuery) return;
+      if (searchQuery) return;
       loadInitialData(newPage);
     },
-    [loadInitialData, state.searchQuery]
+    [loadInitialData, searchQuery]
   );
 
   useEffect(() => {
-    const savedQuery = getSavedSearch();
-    if (savedQuery) {
-      setState((prev) => ({ ...prev, searchQuery: savedQuery }));
-      handleSearch(savedQuery);
+    if (searchQuery) {
+      handleSearch(searchQuery);
     } else {
       loadInitialData(currentPage);
     }
-  }, [getSavedSearch, handleSearch, loadInitialData, currentPage]);
+  }, [searchQuery, handleSearch, loadInitialData, currentPage]);
 
   if (state.forceError) {
     throw new Error('You clicked test error button!');
@@ -148,7 +124,7 @@ function ResultArea() {
   return (
     <div>
       <InputElem
-        searchQuery={state.searchQuery}
+        searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         onSearchSubmit={handleSearchSubmit}
       />
@@ -164,7 +140,7 @@ function ResultArea() {
           error={state.error?.message || null}
         />
       </div>
-      {!state.searchQuery && state.pokemons.length > 0 && (
+      {!searchQuery && state.pokemons.length > 0 && (
         <div className={styles.pagination}>
           <button
             disabled={currentPage === 1}

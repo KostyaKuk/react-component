@@ -17,7 +17,10 @@ describe('API', () => {
     it('return array pokemons, success response', async () => {
       const mockPokemonResponse: PokemonResponse = {
         results: [
-          { name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' },
+          {
+            name: 'bulbasaur',
+            url: 'https://pokeapi.co/api/v2/pokemon?limit=1&offset=0',
+          },
         ],
       };
 
@@ -40,10 +43,10 @@ describe('API', () => {
       const result = await fetchPokemons(1);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://pokeapi.co/api/v2/pokemon?limit=1'
+        'https://pokeapi.co/api/v2/pokemon?limit=1&offset=0'
       );
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://pokeapi.co/api/v2/pokemon/1/'
+        'https://pokeapi.co/api/v2/pokemon?limit=1&offset=0'
       );
       expect(result).toEqual([mockPokemon]);
       expect(result).toHaveLength(1);
@@ -60,7 +63,7 @@ describe('API', () => {
 
       await expect(fetchPokemons(1)).rejects.toThrow('Failed to load pokemons');
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://pokeapi.co/api/v2/pokemon?limit=1'
+        'https://pokeapi.co/api/v2/pokemon?limit=1&offset=0'
       );
     });
   });

@@ -4,6 +4,7 @@ import { fireEvent } from '@testing-library/react';
 import type { Pokemon } from '../types/types';
 import ResultArea from '../components/resultsArea/ResultArea';
 import { fetchPokemonByName, fetchPokemons } from '../api/apiPokemon';
+import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('../api/apiPokemon', () => {
   const mockFetchPokemons = vi.fn();
@@ -35,7 +36,11 @@ describe('Component ResultArea moc', () => {
   });
 
   it('Render loading', async () => {
-    render(<ResultArea />);
+    render(
+      <MemoryRouter>
+        <ResultArea />
+      </MemoryRouter>
+    );
     expect(screen.getByTestId('loading')).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
@@ -43,7 +48,11 @@ describe('Component ResultArea moc', () => {
   });
 
   it('Render card after load', async () => {
-    render(<ResultArea />);
+    render(
+      <MemoryRouter>
+        <ResultArea />
+      </MemoryRouter>
+    );
     await waitFor(() => {
       expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
     });
@@ -51,7 +60,11 @@ describe('Component ResultArea moc', () => {
 
   it('Show message if pokemons not found', async () => {
     vi.mocked(fetchPokemons).mockResolvedValue([]);
-    render(<ResultArea />);
+    render(
+      <MemoryRouter>
+        <ResultArea />
+      </MemoryRouter>
+    );
 
     await waitFor(() => {
       expect(screen.queryByTestId('loading')).toBeNull();
@@ -59,10 +72,14 @@ describe('Component ResultArea moc', () => {
     });
   });
 
-  it('Peload list after empty search ', async () => {
-    render(<ResultArea />);
+  it('Peload list after empty search', async () => {
+    render(
+      <MemoryRouter>
+        <ResultArea />
+      </MemoryRouter>
+    );
     await waitFor(() => expect(screen.queryByTestId('loading')).toBeNull());
-
+    vi.mocked(fetchPokemons).mockClear();
     vi.mocked(fetchPokemons).mockResolvedValueOnce(mockPokemons);
 
     const input = screen.getByPlaceholderText('Search pokemon...');
@@ -70,15 +87,18 @@ describe('Component ResultArea moc', () => {
     fireEvent.submit(screen.getByRole('form'));
 
     await waitFor(() => {
-      expect(fetchPokemons).toHaveBeenCalledTimes(2);
+      expect(fetchPokemons).toHaveBeenCalledTimes(1);
       expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
     });
   });
-
   it('Recovery local storage', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('pikachu');
 
-    render(<ResultArea />);
+    render(
+      <MemoryRouter>
+        <ResultArea />
+      </MemoryRouter>
+    );
 
     expect(screen.getByPlaceholderText('Search pokemon...')).toHaveValue(
       'pikachu'
@@ -86,7 +106,11 @@ describe('Component ResultArea moc', () => {
   });
 
   it('Save  query after search', async () => {
-    render(<ResultArea />);
+    render(
+      <MemoryRouter>
+        <ResultArea />
+      </MemoryRouter>
+    );
 
     const input = screen.getByPlaceholderText('Search pokemon...');
     const form = screen.getByRole('form');
