@@ -1,10 +1,12 @@
 .search-header {
-  background-color: #f8f9fa;
+  background-color: var(--search-bg);
   padding: 2rem 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1;
+  border-radius: 20px;
+
 }
 
 .search-wrapper {
@@ -24,6 +26,9 @@
   border-radius: 24px;
   outline: none;
   transition: all 0.3s ease;
+  border-color: var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 .search-input:focus {
@@ -33,7 +38,7 @@
 .search-button {
   padding: 0 2rem;
   font-size: 1.2rem;
-  background-color: #eba953;
+  background-color: var(--button-bg);
   color: white;
   border: none;
   border-radius: 24px;
@@ -42,5 +47,5 @@
 }
 
 .search-button:hover {
-  background-color: #dba205;
+  background-color: var(--button-hover);
 }

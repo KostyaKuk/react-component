@@ -7,6 +7,7 @@ import type { Pokemon } from '../../types/types';
 import { fetchPokemonByName, fetchPokemons } from '../../api/apiPokemon';
 import { useLocalStorageSearch } from '../../hooks/useLocalStorage';
 import SelectedPanel from '../selectedPanel/selectedPanel';
+import ToggleComponent from '../../themes/toggleComponent/toggleComponent';
 
 interface ResultAreaState {
   pokemons: Pokemon[];
@@ -136,6 +137,7 @@ function ResultArea() {
           onSearchSubmit={handleSearchSubmit}
         />
         <div className={styles.buttonsWrap}>
+          <ToggleComponent />
           <button className={styles.errorButton} onClick={throwTestError}>
             Test Error
           </button>

@@ -3,7 +3,7 @@
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff;
+  background: var(--card-bg);
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 10px 20px;
@@ -11,6 +11,7 @@
   align-items: center;
   justify-content: space-between;
   z-index: 1000;
+  color: var(--text-color);
 }
 
 .buttons {

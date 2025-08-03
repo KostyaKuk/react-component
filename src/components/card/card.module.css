@@ -10,7 +10,7 @@
 .character-card {
   display: flex;
   align-items: center;
-  background-color: #f9f9f9;
+  background-color: var(--card-bg);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
@@ -36,12 +36,12 @@
 .character-name {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: var(--text-color);
 }
 
 .character-detail {
   margin: 5px 0;
-  color: #666;
+  color: var(--text-color);
 }
 
 .loading {

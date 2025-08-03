@@ -6,11 +6,13 @@ import About from './components/about/about';
 import NotFound from './components/notFound/notFound';
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
+import './index.css';
+import { ThemeProvider } from './themes/context/themeProvider';
 
 function App() {
   return (
     <Provider store={store}>
-      <div>
+      <ThemeProvider>
         <ErrorBoundary>
           <BrowserRouter>
             <Routes>
@@ -22,7 +24,7 @@ function App() {
             </Routes>
           </BrowserRouter>
         </ErrorBoundary>
-      </div>
+      </ThemeProvider>
     </Provider>
   );
 }
