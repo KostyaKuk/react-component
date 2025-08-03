@@ -5,6 +5,9 @@ import type { Pokemon } from '../types/types';
 import ResultArea from '../components/resultsArea/ResultArea';
 import { fetchPokemonByName, fetchPokemons } from '../api/apiPokemon';
 import { MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from '../redux/store';
+import { ThemeProvider } from '../themes/context/themeProvider';
 
 vi.mock('../api/apiPokemon', () => {
   const mockFetchPokemons = vi.fn();
@@ -37,9 +40,13 @@ describe('Component ResultArea moc', () => {
 
   it('Render loading', async () => {
     render(
-      <MemoryRouter>
-        <ResultArea />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter>
+            <ResultArea />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
     expect(screen.getByTestId('loading')).toBeInTheDocument();
     await waitFor(() => {
@@ -49,9 +56,13 @@ describe('Component ResultArea moc', () => {
 
   it('Render card after load', async () => {
     render(
-      <MemoryRouter>
-        <ResultArea />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter>
+            <ResultArea />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
     await waitFor(() => {
       expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
@@ -61,9 +72,13 @@ describe('Component ResultArea moc', () => {
   it('Show message if pokemons not found', async () => {
     vi.mocked(fetchPokemons).mockResolvedValue([]);
     render(
-      <MemoryRouter>
-        <ResultArea />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter>
+            <ResultArea />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
 
     await waitFor(() => {
@@ -74,9 +89,13 @@ describe('Component ResultArea moc', () => {
 
   it('Peload list after empty search', async () => {
     render(
-      <MemoryRouter>
-        <ResultArea />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter>
+            <ResultArea />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
     await waitFor(() => expect(screen.queryByTestId('loading')).toBeNull());
     vi.mocked(fetchPokemons).mockClear();
@@ -95,9 +114,13 @@ describe('Component ResultArea moc', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('pikachu');
 
     render(
-      <MemoryRouter>
-        <ResultArea />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter>
+            <ResultArea />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
 
     expect(screen.getByPlaceholderText('Search pokemon...')).toHaveValue(
@@ -107,9 +130,13 @@ describe('Component ResultArea moc', () => {
 
   it('Save  query after search', async () => {
     render(
-      <MemoryRouter>
-        <ResultArea />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter>
+            <ResultArea />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
 
     const input = screen.getByPlaceholderText('Search pokemon...');
@@ -130,9 +157,13 @@ describe('Component ResultArea moc', () => {
 
   it('show new after handle page', async () => {
     render(
-      <MemoryRouter initialEntries={['/?page=1']}>
-        <ResultArea />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter initialEntries={['/?page=1']}>
+            <ResultArea />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
 
     await waitFor(() =>

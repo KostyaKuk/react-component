@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import CharacterCard from '../components/card/card';
 import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from '../redux/store';
+import { ThemeProvider } from '../themes/context/themeProvider';
 
 describe('component card', () => {
   const mockPokemon = {
@@ -12,9 +15,17 @@ describe('component card', () => {
 
   it('Render name and img pokemon', () => {
     render(
-      <BrowserRouter>
-        <CharacterCard pokemons={[mockPokemon]} loading={false} error={null} />
-      </BrowserRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <BrowserRouter>
+            <CharacterCard
+              pokemons={[mockPokemon]}
+              loading={false}
+              error={null}
+            />
+          </BrowserRouter>
+        </ThemeProvider>
+      </Provider>
     );
 
     const image = screen.getByRole('img', { name: /venusaur/i });
@@ -27,9 +38,13 @@ describe('component card', () => {
 
   it('Render no pokemons found', () => {
     render(
-      <BrowserRouter>
-        <CharacterCard pokemons={[]} loading={false} error={null} />
-      </BrowserRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <BrowserRouter>
+            <CharacterCard pokemons={[]} loading={false} error={null} />
+          </BrowserRouter>
+        </ThemeProvider>
+      </Provider>
     );
 
     const noResults = screen.getByText(/no pokemons found/i);
@@ -38,9 +53,13 @@ describe('component card', () => {
 
   it('should display error message', () => {
     render(
-      <MemoryRouter>
-        <CharacterCard pokemons={[]} loading={false} error="Test error" />
-      </MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider>
+          <MemoryRouter>
+            <CharacterCard pokemons={[]} loading={false} error="Test error" />
+          </MemoryRouter>
+        </ThemeProvider>
+      </Provider>
     );
 
     expect(screen.getByText('Error: Test error')).toBeInTheDocument();
