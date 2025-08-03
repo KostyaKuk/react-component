@@ -6,6 +6,7 @@ import styles from './resultArea.module.css';
 import type { Pokemon } from '../../types/types';
 import { fetchPokemonByName, fetchPokemons } from '../../api/apiPokemon';
 import { useLocalStorageSearch } from '../../hooks/useLocalStorage';
+import SelectedPanel from '../selectedPanel/selectedPanel';
 
 interface ResultAreaState {
   pokemons: Pokemon[];
@@ -171,6 +172,7 @@ function ResultArea() {
           <Outlet />
         </div>
       </div>
+      <SelectedPanel />
     </div>
   );
 }

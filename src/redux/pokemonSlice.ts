@@ -21,8 +21,12 @@ const pokemonSlice = createSlice({
         (pokemon) => pokemon.id !== action.payload
       );
     },
+    clearSelectedPokemons: (state) => {
+      state.selectedPokemons = [];
+    },
   },
 });
 
-export const { addPokemon, removePokemon } = pokemonSlice.actions;
+export const { addPokemon, removePokemon, clearSelectedPokemons } =
+  pokemonSlice.actions;
 export default pokemonSlice.reducer;
