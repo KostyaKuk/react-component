@@ -80,3 +80,9 @@
     transform: rotate(360deg);
   }
 }
+
+.character-checkbox{
+ transform:scale(1.5);
+  opacity:0.9;
+  cursor:pointer;
+}

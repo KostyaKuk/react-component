@@ -36,7 +36,7 @@ describe('component card', () => {
     expect(noResults).toBeInTheDocument();
   });
 
-  it('should error message', () => {
+  it('should display error message', () => {
     render(
       <MemoryRouter>
         <CharacterCard pokemons={[]} loading={false} error="Test error" />
