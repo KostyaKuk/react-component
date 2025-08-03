@@ -2,6 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './card.module.css';
 import type { ResultAreaProps } from '../../types/types';
+import { addPokemon, removePokemon } from '../../redux/pokemonSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState } from '../../redux/store';
 
 const CharacterCard: React.FC<ResultAreaProps> = ({
   pokemons,
@@ -9,9 +12,30 @@ const CharacterCard: React.FC<ResultAreaProps> = ({
   error,
 }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const selectedPokemons = useSelector(
+    (state: RootState) => state.pokemon.selectedPokemons
+  );
 
   const handleCardClick = (name: string) => {
     navigate(`/pokemon/${name}`);
+  };
+
+  const handleCheckboxChange = (pokemon: { id: number; name: string }) => {
+    const isSelected = selectedPokemons.some((e) => e.id === pokemon.id);
+    if (isSelected) {
+      dispatch(removePokemon(pokemon.id));
+    } else {
+      dispatch(
+        addPokemon({
+          id: pokemon.id,
+          name: pokemon.name,
+          sprites: {
+            front_default: '',
+          },
+        })
+      );
+    }
   };
 
   if (loading) {
@@ -38,6 +62,13 @@ const CharacterCard: React.FC<ResultAreaProps> = ({
             onClick={() => handleCardClick(pokemon.name)}
             style={{ cursor: 'pointer' }}
           >
+            <input
+              type="checkbox"
+              checked={selectedPokemons.some((e) => e.id === pokemon.id)}
+              onChange={() => handleCheckboxChange(pokemon)}
+              onClick={(e) => e.stopPropagation()}
+              className={styles['character-checkbox']}
+            />
             <img
               src={pokemon.sprites.front_default}
               alt={pokemon.name}
