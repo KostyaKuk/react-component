@@ -4,7 +4,10 @@ import InputElem from '../inputElement/inputElem';
 import CharacterCard from '../card/card';
 import styles from './resultArea.module.css';
 import type { Pokemon } from '../../types/types';
-import { fetchPokemonByName, fetchPokemons } from '../../api/apiPokemon';
+import {
+  useGetPokemonsQuery,
+  useGetPokemonByNameQuery,
+} from '../../api/pokemonApi';
 import { useLocalStorageSearch } from '../../hooks/useLocalStorage';
 import SelectedPanel from '../selectedPanel/selectedPanel';
 import ToggleComponent from '../../themes/toggleComponent/toggleComponent';
@@ -12,7 +15,7 @@ import ToggleComponent from '../../themes/toggleComponent/toggleComponent';
 interface ResultAreaState {
   pokemons: Pokemon[];
   loading: boolean;
-  error: Error | null;
+  error: string | null;
   forceError: boolean;
 }
 
@@ -32,57 +35,46 @@ function ResultArea() {
     return pageFromUrl ? parseInt(pageFromUrl, 10) : 1;
   });
 
-  const loadInitialData = useCallback(
-    async (page = 1) => {
-      setState((prev) => ({ ...prev, loading: true }));
-      setCurrentPage(page);
-      setSearchParams({ page: page.toString() });
-
-      try {
-        const offset = (page - 1) * 10;
-        const pokemons = await fetchPokemons(10, offset);
-        setState((prev) => ({ ...prev, pokemons, loading: false }));
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          error: new Error(String(error)),
-          loading: false,
-        }));
-      }
-    },
-    [setSearchParams]
+  const {
+    data: pokemonsData,
+    isLoading: pokemonsLoading,
+    error: pokemonsError,
+  } = useGetPokemonsQuery(
+    { limit: 10, offset: (currentPage - 1) * 10 },
+    { skip: !!searchQuery }
   );
 
-  const handleSearch = useCallback(
-    async (query: string) => {
-      if (!query.trim()) {
-        setSaveSearch('');
-        await loadInitialData(1);
-        return;
-      }
+  const {
+    data: pokemonByName,
+    isLoading: pokemonLoading,
+    error: pokemonError,
+  } = useGetPokemonByNameQuery(searchQuery, { skip: !searchQuery });
 
-      setState((prev) => ({ ...prev, loading: true, error: null }));
-
-      try {
-        const pokemon = await fetchPokemonByName(query);
-        setState((prev) => ({
-          ...prev,
-          pokemons: [pokemon],
-          loading: false,
-        }));
-        setSearchParams({});
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          error: new Error(String(error)),
-          loading: false,
-          pokemons: [],
-        }));
-        setSearchParams({});
-      }
-    },
-    [loadInitialData, setSaveSearch, setSearchParams]
-  );
+  useEffect(() => {
+    if (searchQuery && pokemonByName) {
+      setState({
+        pokemons: [pokemonByName],
+        loading: pokemonLoading,
+        error: pokemonError ? 'Pokemon not found' : null,
+        forceError: false,
+      });
+    } else if (pokemonsData) {
+      setState({
+        pokemons: pokemonsData,
+        loading: pokemonsLoading,
+        error: pokemonsError ? 'Failed to load pokemons' : null,
+        forceError: false,
+      });
+    }
+  }, [
+    pokemonsData,
+    pokemonByName,
+    pokemonsLoading,
+    pokemonLoading,
+    pokemonsError,
+    pokemonError,
+    searchQuery,
+  ]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,9 +87,13 @@ function ResultArea() {
   const handleSearchSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      handleSearch(searchQuery);
+      if (!searchQuery.trim()) {
+        setSaveSearch('');
+        setCurrentPage(1);
+        setSearchParams({ page: '1' });
+      }
     },
-    [handleSearch, searchQuery]
+    [searchQuery, setSaveSearch, setSearchParams]
   );
 
   const throwTestError = useCallback(() => {
@@ -107,18 +103,11 @@ function ResultArea() {
   const handlePageChange = useCallback(
     (newPage: number) => {
       if (searchQuery) return;
-      loadInitialData(newPage);
+      setCurrentPage(newPage);
+      setSearchParams({ page: newPage.toString() });
     },
-    [loadInitialData, searchQuery]
+    [searchQuery, setSearchParams]
   );
-
-  useEffect(() => {
-    if (searchQuery) {
-      handleSearch(searchQuery);
-    } else {
-      loadInitialData(currentPage);
-    }
-  }, [searchQuery, handleSearch, loadInitialData, currentPage]);
 
   if (state.forceError) {
     throw new Error('You clicked test error button!');
@@ -152,7 +141,7 @@ function ResultArea() {
             <CharacterCard
               pokemons={state.pokemons}
               loading={state.loading}
-              error={state.error?.message || null}
+              error={state.error}
             />
           </div>
           {!searchQuery && state.pokemons.length > 0 && (

@@ -1,38 +1,24 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './cardInfo.module.css';
-import type { Pokemon } from '../../types/types';
-import { fetchPokemonByName } from '../../api/apiPokemon';
+import { useGetPokemonByNameQuery } from '../../api/pokemonApi';
 
 const PokemonDetails: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
-  const [pokemon, setPokemon] = useState<Pokemon | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadPokemon = async () => {
-      if (!name) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchPokemonByName(name);
-        setPokemon(data);
-        setLoading(false);
-      } catch (err) {
-        setError(String(err));
-        setLoading(false);
-      }
-    };
-    loadPokemon();
-  }, [name]);
+  const {
+    data: pokemon,
+    isLoading,
+    error,
+  } = useGetPokemonByNameQuery(name || '', {
+    skip: !name,
+  });
 
   const handleClose = () => {
     navigate('/');
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={styles.spinnerContainer}>
         <div className={styles.customSpinner} data-testid="spinner"></div>
@@ -41,9 +27,7 @@ const PokemonDetails: React.FC = () => {
   }
 
   if (error || !pokemon) {
-    return (
-      <div className={styles.error}>Error: {error || 'Pokemon not found'}</div>
-    );
+    return <div className={styles.error}>Error: {'Pokemon not found'}</div>;
   }
 
   return (
