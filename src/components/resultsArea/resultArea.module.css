@@ -107,3 +107,19 @@
 .buttonsWrap {
   display: flex;
 }
+
+
+.refreshButton{
+   display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: var(--button-bg);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.refreshButton:hover {
+  background-color: var(--button-hover);
+}

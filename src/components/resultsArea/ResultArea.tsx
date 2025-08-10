@@ -23,6 +23,7 @@ function ResultArea() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSaveSearch] = useLocalStorageSearch();
+  const [inputValue, setInputValue] = useState(searchQuery);
   const [state, setState] = useState<ResultAreaState>({
     pokemons: [],
     loading: true,
@@ -38,7 +39,9 @@ function ResultArea() {
   const {
     data: pokemonsData,
     isLoading: pokemonsLoading,
+    isFetching,
     error: pokemonsError,
+    refetch,
   } = useGetPokemonsQuery(
     { limit: 10, offset: (currentPage - 1) * 10 },
     { skip: !!searchQuery }
@@ -61,15 +64,23 @@ function ResultArea() {
     } else if (pokemonsData) {
       setState({
         pokemons: pokemonsData,
-        loading: pokemonsLoading,
+        loading: pokemonsLoading || isFetching,
         error: pokemonsError ? 'Failed to load pokemons' : null,
         forceError: false,
       });
+    } else {
+      setState((prev) => ({
+        ...prev,
+        loading: pokemonsLoading || isFetching,
+        error: pokemonsError ? 'Failed to load pokemons' : null,
+        forceError: false,
+      }));
     }
   }, [
     pokemonsData,
     pokemonByName,
     pokemonsLoading,
+    isFetching,
     pokemonLoading,
     pokemonsError,
     pokemonError,
@@ -78,22 +89,22 @@ function ResultArea() {
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const query = e.target.value;
-      setSaveSearch(query);
+      setInputValue(e.target.value);
     },
-    [setSaveSearch]
+    []
   );
 
   const handleSearchSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (!searchQuery.trim()) {
-        setSaveSearch('');
+      const trimmedQuery = inputValue.trim();
+      setSaveSearch(trimmedQuery);
+      if (!trimmedQuery) {
         setCurrentPage(1);
         setSearchParams({ page: '1' });
       }
     },
-    [searchQuery, setSaveSearch, setSearchParams]
+    [inputValue, setSaveSearch, setSearchParams]
   );
 
   const throwTestError = useCallback(() => {
@@ -109,6 +120,11 @@ function ResultArea() {
     [searchQuery, setSearchParams]
   );
 
+  const handleRefresh = useCallback(() => {
+    setState((prev) => ({ ...prev, loading: true }));
+    refetch();
+  }, [refetch]);
+
   if (state.forceError) {
     throw new Error('You clicked test error button!');
   }
@@ -121,7 +137,7 @@ function ResultArea() {
     <div className={styles.container}>
       <div className={styles.searchWrapper}>
         <InputElem
-          searchQuery={searchQuery}
+          searchQuery={inputValue}
           onSearchChange={handleSearchChange}
           onSearchSubmit={handleSearchSubmit}
         />
@@ -132,6 +148,9 @@ function ResultArea() {
           </button>
           <button className={styles.aboutButton} onClick={handleAboutUs}>
             About Us
+          </button>
+          <button className={styles.refreshButton} onClick={handleRefresh}>
+            Refresh
           </button>
         </div>
       </div>
