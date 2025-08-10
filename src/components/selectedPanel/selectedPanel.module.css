@@ -1,0 +1,38 @@
+.panel {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card-bg);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1000;
+  color: var(--text-color);
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.clearButton,
+.downloadButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.clearButton {
+  background: #ff4d4f;
+}
+
+.downloadButton {
+  background: #ff9800;
+}
