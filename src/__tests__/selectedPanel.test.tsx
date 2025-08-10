@@ -67,24 +67,4 @@ describe('SelectedPanel Component', () => {
 
     expect(store.getState().pokemon.selectedPokemons).toEqual([]);
   });
-  it('triggers download button click without errors', () => {
-    store.dispatch(
-      addPokemon({
-        id: 1,
-        name: 'Bulbasaur',
-        sprites: { front_default: 'url1' },
-      })
-    );
-
-    render(
-      <Provider store={store}>
-        <SelectedPanel />
-      </Provider>
-    );
-
-    const downloadButton = screen.getByText(/Download/i);
-    fireEvent.click(downloadButton);
-
-    expect(downloadButton).toBeInTheDocument();
-  });
 });

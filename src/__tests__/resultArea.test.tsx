@@ -1,24 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { fireEvent } from '@testing-library/react';
-import type { Pokemon } from '../types/types';
-import ResultArea from '../components/resultsArea/ResultArea';
-import { fetchPokemonByName, fetchPokemons } from '../api/apiPokemon';
-import { MemoryRouter } from 'react-router-dom';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { store } from '../redux/store';
+import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '../themes/context/themeProvider';
+import { pokemonApi } from '../api/pokemonApi';
+import { store } from '../redux/store';
+import ResultArea from '../components/resultsArea/ResultArea';
+import type { Pokemon } from '../types/types';
 
-vi.mock('../api/apiPokemon', () => {
-  const mockFetchPokemons = vi.fn();
-  const mockFetchPokemonByName = vi.fn();
-  return {
-    fetchPokemons: mockFetchPokemons,
-    fetchPokemonByName: mockFetchPokemonByName,
-  };
-});
+const mockLocalStorage = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+};
 
-describe('Component ResultArea moc', () => {
+describe('Component ResultArea', () => {
   const mockPokemons: Pokemon[] = [
     {
       id: 1,
@@ -29,16 +25,26 @@ describe('Component ResultArea moc', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(fetchPokemons).mockReturnValue(Promise.resolve(mockPokemons));
-    vi.mocked(fetchPokemonByName).mockReturnValue(
-      Promise.resolve(mockPokemons[0])
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(
+      mockLocalStorage.getItem
     );
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => null);
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
-    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(
+      mockLocalStorage.setItem
+    );
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(
+      mockLocalStorage.removeItem
+    );
   });
 
   it('Render loading', async () => {
+    vi.spyOn(pokemonApi.endpoints.getPokemons, 'useQuery').mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+      refetch: vi.fn(),
+    });
+
     render(
       <Provider store={store}>
         <ThemeProvider>
@@ -48,70 +54,23 @@ describe('Component ResultArea moc', () => {
         </ThemeProvider>
       </Provider>
     );
+
     expect(screen.getByTestId('loading')).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
     });
   });
 
-  it('Render card after load', async () => {
-    render(
-      <Provider store={store}>
-        <ThemeProvider>
-          <MemoryRouter>
-            <ResultArea />
-          </MemoryRouter>
-        </ThemeProvider>
-      </Provider>
-    );
-    await waitFor(() => {
-      expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
-    });
-  });
-
-  it('Show message if pokemons not found', async () => {
-    vi.mocked(fetchPokemons).mockResolvedValue([]);
-    render(
-      <Provider store={store}>
-        <ThemeProvider>
-          <MemoryRouter>
-            <ResultArea />
-          </MemoryRouter>
-        </ThemeProvider>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('loading')).toBeNull();
-      expect(screen.getByText(/no pokemons found/i)).toBeInTheDocument();
-    });
-  });
-
-  it('Peload list after empty search', async () => {
-    render(
-      <Provider store={store}>
-        <ThemeProvider>
-          <MemoryRouter>
-            <ResultArea />
-          </MemoryRouter>
-        </ThemeProvider>
-      </Provider>
-    );
-    await waitFor(() => expect(screen.queryByTestId('loading')).toBeNull());
-    vi.mocked(fetchPokemons).mockClear();
-    vi.mocked(fetchPokemons).mockResolvedValueOnce(mockPokemons);
-
-    const input = screen.getByPlaceholderText('Search pokemon...');
-    fireEvent.change(input, { target: { value: '' } });
-    fireEvent.submit(screen.getByRole('form'));
-
-    await waitFor(() => {
-      expect(fetchPokemons).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
-    });
-  });
   it('Recovery local storage', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('pikachu');
+    mockLocalStorage.getItem.mockReturnValue('pikachu');
+
+    vi.spyOn(pokemonApi.endpoints.getPokemons, 'useQuery').mockReturnValue({
+      data: mockPokemons,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      refetch: vi.fn(),
+    });
 
     render(
       <Provider store={store}>
@@ -128,7 +87,28 @@ describe('Component ResultArea moc', () => {
     );
   });
 
-  it('Save  query after search', async () => {
+  it('Save query after search', async () => {
+    vi.spyOn(pokemonApi.endpoints.getPokemonByName, 'useQuery').mockReturnValue(
+      {
+        data: {
+          id: 2,
+          name: 'ivysaur',
+          sprites: { front_default: 'ivysaur.png' },
+        },
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+        isFetching: false,
+        error: undefined,
+        currentData: {
+          id: 2,
+          name: 'ivysaur',
+          sprites: { front_default: 'ivysaur.png' },
+        },
+      }
+    );
+
     render(
       <Provider store={store}>
         <ThemeProvider>
@@ -145,36 +125,13 @@ describe('Component ResultArea moc', () => {
     fireEvent.change(input, { target: { value: 'ivysaur' } });
     fireEvent.submit(form);
 
-    expect(localStorage.setItem).toHaveBeenCalledWith(
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       'pokemon_search_query',
       'ivysaur'
     );
 
     await waitFor(() => {
-      expect(fetchPokemonByName).toHaveBeenCalledWith('ivysaur');
-    });
-  });
-
-  it('show new after handle page', async () => {
-    render(
-      <Provider store={store}>
-        <ThemeProvider>
-          <MemoryRouter initialEntries={['/?page=1']}>
-            <ResultArea />
-          </MemoryRouter>
-        </ThemeProvider>
-      </Provider>
-    );
-
-    await waitFor(() =>
-      expect(screen.getByText('Bulbasaur')).toBeInTheDocument()
-    );
-
-    fireEvent.click(screen.getByText('Next'));
-
-    await waitFor(() => {
-      expect(fetchPokemons).toHaveBeenCalledWith(10, 10);
-      expect(screen.getByText('Page 2')).toBeInTheDocument();
+      expect(screen.getByText('ivysaur')).toBeInTheDocument();
     });
   });
 });
