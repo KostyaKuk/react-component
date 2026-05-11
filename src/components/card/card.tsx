@@ -8,7 +8,7 @@ class CharacterCard extends Component<ResultAreaProps> {
 
     if (loading) {
       return (
-        <div className={styles.spinnerContainer}>
+        <div className={styles.spinnerContainer} data-testid="loading">
           <div className={styles.customSpinner}></div>
         </div>
       );
